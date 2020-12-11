@@ -1,22 +1,30 @@
 On Error Resume Next
 Dim pingText, dns, ip, maxTTL
-Dim initiPos, finPos, i, j
-Dim fso, ws, output, var
-Set fso = CreateObject("Scripting.FileSystemObject")
+Dim initiPos, finPos, i
+Dim fso, ws, output, sdtIn, stdOut
+Set stdIn = WScript.StdIn
+Set stdOut = WScript.StdOut
 Set ws = CreateObject("WScript.Shell")
-dns = InputBox("Write the web direction", "IAM")
+stdOut.Write "Write the web direction: " 
+dns = stdIn.ReadLine
 Set output = ws.exec("cmd /c ping " & dns & " -n 1")
 pingText = output.StdOut.ReadAll
 initPos = Instr(pingText, "TTL=") + 4
 maxTTL = CInt(Mid(pingText, initPos, 3))
-Set var = fso.CreateTextFile (Replace(wscript.scriptfullname, "IAM.vbs", "Map.txt"))
-var.writeLine dns
-var.writeLine "TTL: " & maxTTL & Chr(13)
+stdOut.WriteLine string(3, Chr(13))
+stdOut.WriteLine string(20, "*")
+stdOut.WriteLine "TTL: " & maxTTL
 For i=1 To maxTTL
 Set output = ws.exec("cmd /c ping " & dns & " -n 1 -i " & i)
 pingText = output.StdOut.ReadAll
 initPos = Instr(pingText, "Respuesta desde ") + 16
-finPos = Instr(pingText, ":")
-ip = Mid(pingText, initPos, initPos-finPos-5)
-var.writeLine i & "- " & ip
+finPos = Instr(pingText, ": ")
+If initPos >= 70 Then
+ip = Mid(pingText, initPos, finPos-initPos)
+Else 
+ip = "Timeout for this request"
+End If
+stdOut.WriteLine i & "- " & ip
 Next
+stdOut.WriteLine string(20, "*")
+WScript.Sleep 600000
