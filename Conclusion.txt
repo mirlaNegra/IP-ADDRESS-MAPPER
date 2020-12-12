@@ -1,3 +1,0 @@
-Conclusion
-
-The program works perfect, and I have learnt not all the devices in the path allow to show their ip addresses.
